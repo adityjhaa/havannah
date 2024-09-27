@@ -95,20 +95,22 @@ class Game:
         if mode == "gui":
             self.use_gui = True
             root = tk.Tk()
-            root.title('Extended Havannah')
+            root.title('Havannah')
 
-            self.current = tk.Label(root, text="Current:")
+            def_font = ("Arial", 20)
+
+            self.current = tk.Label(root, text="Current:", font = def_font)
             self.current.pack()
 
             player1_string = f"{player1.player_string} (Yellow) | Time Remaining {PLAYER_TIME[0]:.2f} s"
-            self.player1_string = tk.Label(root, text=player1_string, anchor="w", width=50)
+            self.player1_string = tk.Label(root, text=player1_string, anchor="w", width=50, font = def_font)
             self.player1_string.pack()
 
             player2_string = f"{player2.player_string} (Red)    | Time Remaining {PLAYER_TIME[1]:.2f} s"
-            self.player2_string = tk.Label(root, text=player2_string, anchor="w", width=50)
+            self.player2_string = tk.Label(root, text=player2_string, anchor="w", width=50, font = def_font)
             self.player2_string.pack()
 
-            self.scale = 1
+            self.scale = 3
             height = (25 * np.sqrt(3) * (2 * layers - 1))*self.scale
             width = (75 * layers - 25)*self.scale
             self.c = tk.Canvas(root, height=height, width=width)
@@ -169,7 +171,7 @@ class Game:
         # Calculate the centroid of the hexagon to place the text
         x = sum([point[0] for point in hex_coords]) / 6
         y = sum([point[1] for point in hex_coords]) / 6
-        self.c.create_text(x, y, text=f"({i},{j})", fill="black")
+        self.c.create_text(x, y, text=f"({i},{j})", fill="black", font=("Arial", 18, "bold"))
 
     def display_time(self, game_over):
         while not game_over.value:
@@ -223,7 +225,7 @@ class Game:
                             hex_coords.append(hex_coords[0])
                             self.c.create_line(hex_coords, fill="blue", width=5)
 
-                        self.current.configure(text=f'GAME OVER\n Player {self.winner} won with a {self.structure_formed}', font=("Arial", 5 + self.state.shape[0], "bold"))
+                        self.current.configure(text=f'GAME OVER\n Player {self.winner} won with a {self.structure_formed}', font=("Arial", 20, "bold"))
 
                     log_file.write(s)
                     log_file.write("Winner: Player " + str(self.winner) + '\n')
