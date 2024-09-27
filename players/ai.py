@@ -17,12 +17,10 @@ class Node:
     def is_fully_expanded(self):
         return len(self.children) == len(get_valid_actions(self.state))
     
-    def best_child(self, c=1.4):
+    def best_child(self, c=1.41):
         """Select the child node with the highest UCB1 score."""
         def ucb_value(child):
-            if child.visits == 0:
-                return float('inf')  # Prioritize unvisited nodes
-            exploitation = child.value / child.visits
+            exploitation = child.value / (child.visits+1)
             exploration = c * math.sqrt(math.log(self.visits) / child.visits)
             return exploitation + exploration
         
@@ -47,12 +45,23 @@ def mcts(state, timer_per_move, player_number, target_depth=3):
     Returns:
         (int, int): Coordinates of the best move.
     """
+    # Step 1: Check for an immediate winning move
+    valid_moves = get_valid_actions(state)
+    for move in valid_moves:
+        new_state = state.copy()
+        new_state[move] = player_number
+        if check_win(new_state, move, player_number)[0]:
+            return move  # Return the winning move immediately if found
+    
+    # Step 2: Proceed with MCTS if no immediate winning move is found
     root = Node(state=state)
     start_time = time.time()  # Track the start time of the move
     max_depth_reached = False
     
-    while time.time() - start_time < timer_per_move:
+    while time.time() - start_time < timer_per_move and not max_depth_reached:
         leaf_node, depth = tree_policy(root, player_number, current_depth=0)  # Select a node to explore with depth tracking
+        if leaf_node is None:  # Failed to expand properly
+            continue
         outcome = rollout(leaf_node, player_number)   # Simulate a game from this node
         backpropagate(leaf_node, outcome)             # Backpropagate the result
 
@@ -60,12 +69,8 @@ def mcts(state, timer_per_move, player_number, target_depth=3):
         if depth >= target_depth:
             max_depth_reached = True
 
-        # If we have already expanded to the target depth, we can choose the best move
-        if max_depth_reached and time.time() - start_time >= timer_per_move:
-            break
-    
     # After search, choose the move corresponding to the child with the most visits
-    best_move = root.best_child(c=1.41).move  # c=0 means we choose purely based on value/visits
+    best_move = root.best_child(c=1.41).move  # Use a UCB1 exploration factor for the best child selection
     return best_move
 
 def tree_policy(node, player_number, current_depth):
@@ -84,12 +89,10 @@ def expand(node, player_number):
     tried_moves = [child.move for child in node.children]
     
     for move in valid_moves:
-        if (move not in tried_moves) and (not is_terminal(node.state, move)):
+        if move not in tried_moves:
             new_state = node.state.copy()
             new_state[move] = player_number
             return node.add_child(move, new_state)
-        else:
-            node.terminal_node = True
     
     return None
 
@@ -98,20 +101,18 @@ def rollout(node, player_number):
     current_state = node.state.copy()
     current_player = player_number
     
-    for _ in range(10):
-        move = random.choice(get_valid_actions(current_state))
-        if is_terminal(current_state, move):
-            node.terminal_node = True
+    while True:
+        moves = get_valid_actions(current_state)
+        if not moves:
             break
+        move = random.choice(moves)
         current_state[move] = current_player
+        
+        if is_terminal(current_state, move):
+            return 1 if check_win(current_state, move, player_number)[0] else 0
         current_player = 3 - current_player
     
-    if check_win(current_state, move, player_number)[0]:
-        return 1
-    elif check_win(current_state, move, 3 - player_number)[0]:
-        return 0
-    else:
-        return 0.5
+    return 0.5
 
 def backpropagate(node, outcome):
     """Propagate the result of the simulation back up the tree."""
@@ -131,42 +132,31 @@ def is_terminal(state, move):
     Returns:
     `bool`: True if the game has ended, otherwise False.
     """
-    for player in [1, 2]:
-        if (check_win(state, move, player)[0]):
-            return True
-    return False
+    return check_win(state, move, 1)[0] or check_win(state, move, 2)[0]
 
 class AIPlayer:
     def __init__(self, player_number: int, timer):
         """
         Initialize the AIPlayer Agent
 
-        # Parameters
+        Parameters:
         `player_number (int)`: Current player number, num==1 starts the game
-        
-        `timer: Timer`
-            - a Timer object that can be used to fetch the remaining time for any player
-            - Run `fetch_remaining_time(timer, player_number)` to fetch remaining time of a player
+        `timer`: Timer object that can be used to fetch the remaining time
         """
         self.player_number = player_number
         self.type = 'ai'
-        self.player_string = 'Player {}: ai'.format(player_number)
+        self.player_string = f'Player {player_number}: ai'
         self.timer = timer
 
     def get_move(self, state: np.array) -> Tuple[int, int]:
         """
         Given the current state of the board, return the next move
 
-        # Parameters
-        `state: Tuple[np.array]`
-            - a numpy array containing the state of the board using the following encoding:
-            - the board maintains its same two dimensions
-            - spaces that are unoccupied are marked as 0
-            - spaces that are blocked are marked as 3
-            - spaces that are occupied by player 1 have a 1 in them
-            - spaces that are occupied by player 2 have a 2 in them
-
-        # Returns
-        Tuple[int, int]: action (coordinates of a board cell)
+        Parameters:
+        `state`: np.array -> Current state of the board
+        
+        Returns:
+        Tuple[int, int]: Coordinates of the chosen move
         """
-        return mcts(state, timer_per_move=5, player_number=self.player_number, target_depth=3)
+        per_move_time = fetch_remaining_time(self.timer, 1) / (state.shape[0]*10)
+        return mcts(state, timer_per_move=per_move_time, player_number=self.player_number, target_depth=2**32-1)
