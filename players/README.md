@@ -1,0 +1,66 @@
+# Current Progress
+
+## MCTS+UCT vs MCTS+UCT+RAVE
+
+### AI vs RANDOM
+> (600s total, board size: 5x5)
+
+#### MCTS + UCT
+
+**Player 2:**
+- Win: 453s (fork)
+- Loss: 473s (fork)
+- Win: 506s (ring)
+- Win: 499s (ring)
+- Win: 480s (fork)
+
+**Player 1:**
+- Loss: 458s (fork) _[Had a win in 2 moves (bridge), missed]_
+- Loss: 474s (fork) _[Had a win in 2 moves (ring), missed]_
+- Loss: 483s (fork) _[Had a win in 2 moves (bridge), missed]_
+- Loss: 463s (bridge) _[Terrible heuristics]_
+- Loss: 490s (ring) _[Had a win in 2 moves (bridge), missed]_
+
+#### MCTS + UCT + RAVE
+
+**Player 2:**
+- Win: 499s (fork)
+- Win: 479s (bridge)
+- Win: 473s (ring)
+- Win: 493s (fork)
+- Win: 453s (bridge) _[Could have done this faster]_
+
+**Player 1:**
+- Loss: 513s (bridge) _[Easily winnable, lost due to no blocking and poor threat detection]_
+- Win: 495s (ring)
+- Win: 548s (bridge)
+- Win: 473s (ring)
+- Win: 501s (ring)
+
+---
+
+### AI vs AI (MCTS+UCT vs MCTS+UCT+RAVE)
+
+| Player 1 (AI: MCTS+UCT) | Player 2 (AI2: MCTS+UCT+RAVE) |
+|-------------------------|-------------------------------|
+| 542s, lost         | 549s, won (ring)            |
+| 490s, won (bridge)       | 491s, lost            |
+| 503s, lost       | 501s, won (bridge)            |
+| 490s, lost       | 497s, won (bridge)            |
+| 507s, won (bridge)       | 508s, lost            |
+
+#### AI2 (MCTS+UCT+RAVE) as Player 1 vs AI (MCTS+UCT) as Player 2
+| Player 1 (AI2)           | Player 2 (AI)                 |
+|-------------------------|-------------------------------|
+| 496s, won (ring)         | 497s, lost              |
+| 453s, lost         | 454s, won (fork)              |
+| 463s, won (fork)         | 465s, lost              |
+| 474s, lost         | 481s, won (fork)              |
+| 507s, won (ring)         | 508s, lost              |
+
+---
+
+### Notes:
+- **AI1 (MCTS+UCT)** demonstrates inconsistent performance, particularly in threat detection and blocking.
+- **AI2 (MCTS+UCT+RAVE)** shows generally stronger results, particularly in decision-making when evaluating multiple potential wins.
+- Blocking and recognizing win-in-2 moves remains critical to improving heuristics in both algorithms.
