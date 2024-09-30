@@ -66,14 +66,14 @@
 - Blocking and recognizing win-in-2 moves remains critical to improving heuristics in both algorithms.
 
 #### After Setting params for RAVE and UCT
-**player 2** 
+**Player 2** 
 - win bridge 540s 
 - win fork 500s
 - win fork 506s
 - win bridge 513s
 - win fork 540s
 
-**player 1**
+**Player 1**
 - win bridge 513s
 - win ridge 561s
 - win fork 507s
