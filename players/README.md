@@ -64,3 +64,17 @@
 - **AI1 (MCTS+UCT)** demonstrates inconsistent performance, particularly in threat detection and blocking.
 - **AI2 (MCTS+UCT+RAVE)** shows generally stronger results, particularly in decision-making when evaluating multiple potential wins.
 - Blocking and recognizing win-in-2 moves remains critical to improving heuristics in both algorithms.
+
+#### After Setting params for RAVE and UCT
+**player 2** 
+- win bridge 540s 
+- win fork 500s
+- win fork 506s
+- win bridge 513s
+- win fork 540s
+**player 1**
+- win bridge 513s
+- win ridge 561s
+- win fork 507s
+- win bridge 536s
+- win fork 519s
