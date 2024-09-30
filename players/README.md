@@ -60,11 +60,6 @@
 
 ---
 
-### Notes:
-- **AI1 (MCTS+UCT)** demonstrates inconsistent performance, particularly in threat detection and blocking.
-- **AI2 (MCTS+UCT+RAVE)** shows generally stronger results, particularly in decision-making when evaluating multiple potential wins.
-- Blocking and recognizing win-in-2 moves remains critical to improving heuristics in both algorithms.
-
 #### After Setting params for RAVE and UCT
 **Player 2** 
 - win bridge 540s 
@@ -79,3 +74,11 @@
 - win fork 507s
 - win bridge 536s
 - win fork 519s
+
+---
+### Notes:
+- **AI1 (MCTS+UCT)** demonstrates inconsistent performance, particularly in threat detection and blocking.
+- **AI2 (MCTS+UCT+RAVE)** shows generally stronger results, particularly in decision-making when evaluating multiple potential wins.
+- Blocking and recognizing win-in-2 moves remains critical to improving heuristics in both algorithms.
+- Implementing a multiple rollout strategy is kept as one of the future works.
+- LGR, LGRF, N-grams, and Nearest Neighbours approach all remain to be tested.
