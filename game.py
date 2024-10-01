@@ -88,7 +88,7 @@ class Game:
             log_file.write(s)
             log_file.write("Player 1 Type: " + player1.type + '\n')
             log_file.write("Player 2 Type: " + player2.type + '\n')
-            print(s)
+            # print(s)
             print("Player 1 Type: " + player1.type)
             print("Player 2 Type: " + player2.type)
 
@@ -299,7 +299,8 @@ class Game:
                     game_over.value = True
                     self.structure_formed = way
                     self.winner = current_player.player_number
-                    print(f"GAME OVER, Player {self.winner} won with a {self.structure_formed}!")
+                    print(f"\nGAME OVER, Player {self.winner} won with a {self.structure_formed}!")
+                    print(f"\nTime Remaining:\n\tPlayer 1 - {PLAYER_TIME[0]:.3f} s\n\tPlayer 2 - {PLAYER_TIME[1]:.3f} s")
 
             # Log: Writing action to log file
             with open('logs.txt', 'a') as log_file:
