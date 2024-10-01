@@ -17,6 +17,7 @@ class Node:
         self.rave_value = {}
 
     def is_fully_expanded(self) -> bool:
+        """Checks if all possible actions from the current state have been expanded."""
         return len(self.children) == len(get_valid_actions(self.state))
 
     def best_child(self, c=1.41, beta_func=None) -> 'Node':
@@ -59,16 +60,26 @@ def beta_func(child: Node, k=500) -> float:
     return k / (k + child.visits)
 
 def mcts(state: np.array, timer_per_move: float, player_number: int, target_depth=3) -> Tuple[int, int]:
-    """Monte Carlo Tree Search with RAVE."""
-    # Step 1: Check for an immediate winning move
+    """Monte Carlo Tree Search with RAVE, including one-step win and block moves."""
+    
+    opponent = 3 - player_number
     valid_moves = get_valid_actions(state)
+    
+    # Step 1: Check for an immediate winning move
     for move in valid_moves:
         new_state = state.copy()
         new_state[move] = player_number
         if check_win(new_state, move, player_number)[0]:
             return move
 
-    # Step 2: MCTS loop
+    # Step 2: Check if the opponent is one step away from winning and block
+    for move in valid_moves:
+        new_state = state.copy()
+        new_state[move] = opponent
+        if check_win(new_state, move, opponent)[0]:
+            return move  # Block the opponent's winning move
+
+    # Step 3: MCTS loop
     root = Node(state=state)
     start_time = time.time()
     max_depth_reached = False
