@@ -75,6 +75,17 @@
 - win bridge 536s
 - win fork 519s
 
+#### After blocking
+
+AI VS AI (AI = RAVE, AI2 = RAVE(0.9, 500) + blocking)
+-----------------------------------------------------
+| player 1 = AI  | player 2 = AI2 |
+|-----------------|----------------|
+| (144, lost)    | (145, won) -> fork | 
+| (159, lost)    | (161, won) -> bridge |
+| (160, lost)    | (162, won) -> bridge |
+| (160, lost)    | (162, won) -> bridge |
+| (148, lost)    | (149, won) -> bridge |
 ---
 ### Notes:
 - **AI1 (MCTS+UCT)** demonstrates inconsistent performance, particularly in threat detection and blocking.
