@@ -59,7 +59,7 @@ def beta_func(child: Node, k=500) -> float:
     """RAVE weight function based on the number of visits to a child node."""
     return k / (k + child.visits)
 
-def mcts(state: np.array, timer_per_move: float, player_number: int, target_depth=3) -> Tuple[int, int]:
+def mcts(state: np.array, timer_per_move: float, player_number: int, target_depth=3, num_rollouts=10) -> Tuple[int, int]:
     """Monte Carlo Tree Search with RAVE, including one-step win and block moves."""
     
     opponent = 3 - player_number
@@ -89,7 +89,7 @@ def mcts(state: np.array, timer_per_move: float, player_number: int, target_dept
         if leaf_node is None:
             continue
 
-        outcome = rollout(leaf_node, player_number)
+        outcome = rollout(leaf_node, player_number, num_rollouts)
         backpropagate(leaf_node, outcome)
 
         # Update RAVE statistics
@@ -124,23 +124,34 @@ def expand(node: Node, player_number: int) -> Node:
             return node.add_child(move, new_state)
     return None
 
-def rollout(node: Node, player_number: int) -> float:
-    """Simulate a random game from the current node and return the outcome."""
-    current_state = node.state.copy()
-    current_player = player_number
+def rollout(node: Node, player_number: int, num_rollouts: int = 10) -> float:
+    """Simulate multiple random games from the current node and return the average outcome."""
+    total_outcome = 0.0
+    
+    for _ in range(num_rollouts):
+        current_state = node.state.copy()
+        current_player = player_number
 
-    while True:
-        moves = get_valid_actions(current_state)
-        if not moves:
-            break
-        move = random.choice(moves)
-        current_state[move] = current_player
+        while True:
+            moves = get_valid_actions(current_state)
+            if not moves:
+                break
+            move = random.choice(moves)
+            current_state[move] = current_player
 
-        if is_terminal(current_state, move):
-            return 1 if check_win(current_state, move, player_number)[0] else 0
-        current_player = 3 - current_player
+            if is_terminal(current_state, move):
+                if check_win(current_state, move, player_number)[0]:
+                    total_outcome += 1  # Player won
+                else:
+                    total_outcome += 0  # Opponent won
+                break
+            current_player = 3 - current_player
 
-    return 0.5
+        total_outcome += 0.5  # Draw case
+
+    # Return the average outcome
+    return total_outcome / num_rollouts
+
 
 def backpropagate(node: Node, outcome: float) -> None:
     """Propagate the result of the simulation back up the tree."""
@@ -190,4 +201,4 @@ class AIPlayer:
         """
 
         per_move_time = fetch_remaining_time(self.timer, 1) / (state.shape[0]*10)
-        return mcts(state, timer_per_move=per_move_time, player_number=self.player_number, target_depth=2**32-1)
+        return mcts(state, timer_per_move=per_move_time, player_number=self.player_number, target_depth=2**32-1, num_rollouts=10)
