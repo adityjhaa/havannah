@@ -201,5 +201,6 @@ class AIPlayer:
         """
 
         per_move_time = fetch_remaining_time(self.timer, 1) / (state.shape[0]*10)
-        return mcts(state, timer_per_move=per_move_time, player_number=self.player_number, target_depth=2**32-1, num_rollouts=10)
+        move = mcts(state, timer_per_move=per_move_time, player_number=self.player_number, target_depth=2**32-1, num_rollouts=10)
+        return (int(move[0]), int(move[1]))
 
